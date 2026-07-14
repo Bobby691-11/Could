@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DeathCVLT_STELSRUSSIA</title>
+    <style>
+        /* Глобальный сброс — абсолютный чёрный */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            color: #b0b0b0;
+            font-family: 'Times New Roman', 'Georgia', serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 3rem 2.5rem 5rem;
+            background: rgba(0, 0, 0, 0.70);
+            backdrop-filter: blur(8px);
+            border-left: 2px solid #1a1a1a;
+            border-right: 2px solid #1a1a1a;
+            box-shadow: 0 0 150px rgba(0, 0, 0, 1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            border-bottom: 2px solid #1a1a1a;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 5rem;
+            font-weight: 700;
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            color: #d0d0d0;
+            text-shadow: 0 0 40px #1a0000, 0 0 100px #0a0000;
+            word-break: break-word;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.1;
+        }
+
+        .header .sub {
+            font-size: 1.6rem;
+            color: #666666;
+            letter-spacing: 6px;
+            margin-top: 1rem;
+            text-transform: uppercase;
+            border-top: 2px solid #1a1a1a;
+            padding-top: 1rem;
+            display: inline-block;
+            font-family: 'Georgia', serif;
+        }
+
+        /* ОБЪЁМНЫЙ ПЛАСТИЛИНОВЫЙ ТЕКСТ — чёрный, жирный, с тенью */
+        .description {
+            background: rgba(0, 0, 0, 0.80);
+            padding: 2.8rem 3rem;
+            border-left: 6px solid #330000;
+            margin-bottom: 3.5rem;
+            font-size: 1.6rem;
+            line-height: 2;
+            color: #b8b8b8;
+            box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.95);
+            font-family: 'Georgia', serif;
+            letter-spacing: 0.5px;
+            /* Пластилиновый эффект */
+            text-shadow: 0 4px 0 #000000, 0 6px 0 #0a0a0a, 0 8px 8px rgba(0, 0, 0, 0.9);
+            font-weight: 900;
+            transform: perspective(800px) rotateX(0deg) translateZ(0);
+            transition: transform 0.2s ease;
+        }
+
+        .description i {
+            color: #8a2a2a;
+            font-style: italic;
+            font-size: 1.8rem;
+            text-shadow: 0 3px 0 #1a0000, 0 5px 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .description:hover {
+            transform: perspective(800px) rotateX(2deg) translateZ(5px);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #1a1a1a;
+            padding: 2.5rem 2rem;
+            backdrop-filter: blur(6px);
+            transition: all 0.25s ease;
+        }
+
+        .card:hover {
+            border-color: #3a0a0a;
+            background: rgba(10, 0, 0, 0.9);
+            box-shadow: 0 0 50px rgba(40, 0, 0, 0.3);
+        }
+
+        .card h3 {
+            color: #999999;
+            letter-spacing: 4px;
+            font-size: 2rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 0.8rem;
+            margin-bottom: 1.8rem;
+            font-weight: 400;
+            font-family: 'Georgia', serif;
+            /* Пластилин для заголовков карточек */
+            text-shadow: 0 3px 0 #000000, 0 5px 10px rgba(0, 0, 0, 0.9);
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card ul li {
+            padding: 0.6rem 0;
+            border-bottom: 1px dotted #141414;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            color: #a8a8a8;
+            font-family: 'Georgia', serif;
+            text-shadow: 0 2px 0 #000000, 0 4px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .card ul li:last-child {
+            border-bottom: none;
+        }
+
+        .card ul li::before {
+            content: "◈ ";
+            color: #440000;
+            font-size: 1.2rem;
+            vertical-align: middle;
+        }
+
+        .card .meta {
+            margin-top: 1.8rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #141414;
+            font-size: 1.2rem;
+            color: #555555;
+            letter-spacing: 2px;
+            font-family: 'Georgia', serif;
+            text-shadow: 0 2px 0 #000000, 0 4px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .links {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            flex-wrap: wrap;
+            margin: 3rem 0 2rem;
+            padding: 2rem 0;
+            border-top: 2px solid #1a1a1a;
+            border-bottom: 2px solid #1a1a1a;
+        }
+
+        .links a {
+            color: #888888;
+            text-decoration: none;
+            font-size: 2rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            padding: 0.8rem 2.5rem;
+            border: 2px solid #1a1a1a;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            font-family: 'Georgia', serif;
+            text-shadow: 0 3px 0 #000000, 0 6px 12px rgba(0, 0, 0, 0.9);
+            font-weight: 700;
+        }
+
+        .links a:hover {
+            color: #cccccc;
+            border-color: #3a0a0a;
+            background: rgba(20, 0, 0, 0.85);
+            box-shadow: 0 0 60px rgba(40, 0, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+        .footer {
+            margin-top: auto;
+            text-align: center;
+            font-size: 1.1rem;
+            color: #333333;
+            letter-spacing: 4px;
+            padding-top: 2.5rem;
+            border-top: 2px solid #0a0a0a;
+            font-family: 'Georgia', serif;
+            text-shadow: 0 2px 0 #000000, 0 4px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        @media (max-width: 900px) {
+            .content {
+                padding: 2rem 1.5rem 3rem;
+            }
+            .header h1 {
+                font-size: 3.8rem;
+                letter-spacing: 6px;
+            }
+            .description {
+                font-size: 1.3rem;
+                padding: 2rem;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .card h3 {
+                font-size: 1.7rem;
+            }
+            .card ul li {
+                font-size: 1.2rem;
+            }
+            .links a {
+                font-size: 1.5rem;
+                padding: 0.6rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .content {
+                padding: 1rem 0.8rem 2rem;
+                backdrop-filter: blur(8px);
+            }
+            .header h1 {
+                font-size: 2.6rem;
+                letter-spacing: 3px;
+            }
+            .header .sub {
+                font-size: 1.2rem;
+            }
+            .description {
+                font-size: 1.1rem;
+                padding: 1.2rem;
+                border-left-width: 4px;
+            }
+            .card h3 {
+                font-size: 1.4rem;
+            }
+            .card ul li {
+                font-size: 1rem;
+            }
+            .links {
+                gap: 1.2rem;
+            }
+            .links a {
+                font-size: 1.1rem;
+                padding: 0.4rem 1rem;
+                letter-spacing: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="three-canvas"></div>
+
+    <div class="content">
+        <div class="header">
+            <h1>DeathCVLT<br />STELSRUSSIA</h1>
+            <div class="sub">независимое музыкальное объединение</div>
+        </div>
+
+        <div class="description">
+            <i>DeathCVLT_STELSRUSSIA</i> — независимое музыкальное объединение из России, объединяющее артистов, продюсеров и визионеров под знаком бескомпромиссного звучания.<br />
+            Мрачная эстетика, плотный саунд и сцена как ритуал. Мы создаём музыку, которую невозможно забыть — и невозможно игнорировать.
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>◈ участники (все)</h3>
+                <ul>
+                    <li>h1shimur0</li>
+                    <li>sweatson klank</li>
+                    <li>coldchest</li>
+                    <li>PDMOST</li>
+                    <li>kaavillkilla</li>
+                    <li>haveproblem? / проблема</li>
+                    <li>117</li>
+                    <li>SILEHT</li>
+                    <li>DUSKP1NES</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>◈ объединения (все)</h3>
+                <ul>
+                    <li>GOTIKA / dielondon</li>
+                    <li>DeathCVLT</li>
+                </ul>
+                <div class="meta">■ основано в России</div>
+            </div>
+        </div>
+
+        <div class="links">
+            <a href="https://t.me/STLRUSSIA" target="_blank">Telegram</a>
+            <a href="https://vk.com/lowmiz" target="_blank">VK</a>
+        </div>
+
+        <div class="footer">
+            <span>DeathCVLT_STELSRUSSIA — мрак и плотность</span>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.126.0/build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        const container = document.getElementById('three-canvas');
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+
+        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+        camera.position.set(0, 1.5, 9);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        scene.fog = new THREE.FogExp2(0x000000, 0.015);
+
+        const ambientLight = new THREE.AmbientLight(0x111111);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0x330000, 0.6, 20);
+        pointLight.position.set(2, 3, 4);
+        scene.add(pointLight);
+
+        const backLight = new THREE.PointLight(0x220000, 0.3);
+        backLight.position.set(-3, -1, -5);
+        scene.add(backLight);
+
+        const group = new THREE.Group();
+        scene.add(group);
+
+        // --- Частицы (фон) ---
+        const particleCount = 2000;
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+
+        for (let i = 0; i < particleCount; i++) {
+            const r = 5 + Math.random() * 8;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos((Math.random() * 2) - 1);
+
+            positions[i * 3] = Math.sin(phi) * Math.cos(theta) * r;
+            positions[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * r * 0.4;
+            positions[i * 3 + 2] = Math.cos(phi) * r * 0.6;
+
+            const grey = 0.02 + Math.random() * 0.08;
+            colors[i * 3] = grey;
+            colors[i * 3 + 1] = grey;
+            colors[i * 3 + 2] = grey;
+        }
+
+        const particleGeometry = new THREE.BufferGeometry();
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.10,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.4,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+        });
+        const particles = new THREE.Points(particleGeometry, particleMaterial);
+        group.add(particles);
+
+        // --- Кольца (очень тёмные) ---
+        const ringMat = new THREE.MeshStandardMaterial({
+            color: 0x0a0a0a,
+            emissive: 0x0a0000,
+            transparent: true,
+            opacity: 0.2,
+            side: THREE.DoubleSide,
+            roughness: 1.0,
+            metalness: 0.0,
+        });
+
+        const ringGeo = new THREE.TorusGeometry(2.6, 0.03, 32, 80);
+        const ring1 = new THREE.Mesh(ringGeo, ringMat);
+        ring1.rotation.x = Math.PI / 2.2;
+        ring1.rotation.z = 0.4;
+        group.add(ring1);
+
+        const ring2 = new THREE.Mesh(ringGeo, ringMat);
+        ring2.rotation.y = 1.0;
+        ring2.rotation.x = 0.8;
+        ring2.scale.set(1.3, 1.3, 0.9);
+        group.add(ring2);
+
+        const ringMat2 = new THREE.MeshStandardMaterial({
+            color: 0x050505,
+            emissive: 0x0a0000,
+            transparent: true,
+            opacity: 0.1,
+            side: THREE.DoubleSide,
+        });
+        const ring3 = new THREE.Mesh(new THREE.TorusGeometry(3.2, 0.015, 16, 100), ringMat2);
+        ring3.rotation.x = 1.3;
+        ring3.rotation.y = 0.6;
+        group.add(ring3);
+
+        // --- БЕЛЫЕ НЕЖНЫЕ ПТИЦЫ ---
+        const birdGroup = new THREE.Group();
+        scene.add(birdGroup);
+
+        function createBird() {
+            // Птица состоит из двух треугольников (крылья)
+            const geo = new THREE.BufferGeometry();
+            const vertices = new Float32Array([
+                -0.25, 0.0, 0.0,
+                0.0, 0.09, 0.0,
+                0.0, -0.09, 0.0,
+                0.25, 0.0, 0.0,
+                0.0, 0.09, 0.0,
+                0.0, -0.09, 0.0,
+            ]);
+            geo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            geo.computeVertexNormals();
+
+            // Белый, полупрозрачный, нежный
+            const mat = new THREE.MeshBasicMaterial({
+                color: 0xeeeeee,
+                transparent: true,
+                opacity: 0.35 + Math.random() * 0.25,
+                side: THREE.DoubleSide,
+                depthWrite: false,
+                blending: THREE.NormalBlending,
+            });
+            const mesh = new THREE.Mesh(geo, mat);
+
+            // Разброс по пространству, ближе к камере
+            const radius = 2.5 + Math.random() * 5;
+            const angle = Math.random() * Math.PI * 2;
+            const height = (Math.random() - 0.5) * 5;
+            mesh.position.set(
+                Math.cos(angle) * radius,
+                height,
+                Math.sin(angle) * radius
+            );
+            mesh.rotation.y = Math.random() * Math.PI * 2;
+            mesh.rotation.x = (Math.random() - 0.5) * 0.4;
+            mesh.rotation.z = (Math.random() - 0.5) * 0.4;
+
+            const sc = 0.8 + Math.random() * 1.8;
+            mesh.scale.set(sc, sc, sc);
+
+            mesh.userData = {
+                speed: 0.002 + Math.random() * 0.004,
+                angle: Math.random() * Math.PI * 2,
+                radius: radius,
+                heightOffset: height,
+                flapSpeed: 0.025 + Math.random() * 0.03,
+                flapPhase: Math.random() * Math.PI * 2,
+                rotY: mesh.rotation.y,
+            };
+
+            return mesh;
+        }
+
+        const birds = [];
+        // Больше птиц для эффекта стаи
+        for (let i = 0; i < 35; i++) {
+            const bird = createBird();
+            birdGroup.add(bird);
+            birds.push(bird);
+        }
+
+        // --- Мышь для параллакса ---
+        let mouseX = 0,
+            mouseY = 0;
+        window.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth - 0.5) * 1.2;
+            mouseY = -(event.clientY / window.innerHeight - 0.5) * 0.7;
+        });
+
+        // --- Анимация ---
+        function animate() {
+            const elapsed = performance.now() * 0.0003;
+
+            // Медленное вращение колец
+            group.rotation.y += 0.0004;
+            group.rotation.x = Math.sin(elapsed * 0.06) * 0.02;
+            group.rotation.z = Math.sin(elapsed * 0.04) * 0.01;
+
+            // Параллакс камеры
+            camera.position.x += (mouseX * 0.6 - camera.position.x) * 0.006;
+            camera.position.y += (mouseY * 0.4 + 1.5 - camera.position.y) * 0.006;
+            camera.lookAt(0, 0, 0);
+
+            // Частицы едва мерцают
+            particleMaterial.size = 0.08 + Math.sin(elapsed * 1.2) * 0.02;
+
+            // --- Анимация белых птиц ---
+            birds.forEach((bird) => {
+                bird.userData.angle += bird.userData.speed * 0.9;
+                const r = bird.userData.radius;
+                const a = bird.userData.angle;
+                const h = bird.userData.heightOffset + Math.sin(a * 0.7 + elapsed * 0.2) * 1.8;
+
+                bird.position.x = Math.cos(a) * r;
+                bird.position.z = Math.sin(a) * r;
+                bird.position.y = h;
+
+                // Поворот в сторону движения
+                bird.rotation.y = -a + Math.PI / 2;
+
+                // Машущие крылья (хлопок)
+                const flap = Math.sin(elapsed * 3.5 + bird.userData.flapPhase) * 0.4 + 0.6;
+                bird.scale.z = flap * 0.7;
+                // Лёгкое покачивание
+                bird.rotation.x = Math.sin(elapsed * 1.2 + bird.userData.flapPhase) * 0.12;
+            });
+
+            // Медленный поворот всей стаи
+            birdGroup.rotation.y += 0.00015;
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        });
+    </script>
+</body>
+</html>
